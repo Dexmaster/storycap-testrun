@@ -1,5 +1,55 @@
 # @storycap-testrun/browser
 
+## 3.1.0
+
+### Minor Changes
+
+- [#304](https://github.com/reg-viz/storycap-testrun/pull/304) [`9c86255`](https://github.com/reg-viz/storycap-testrun/commit/9c86255fefe60422f8e1ee0e71a82b5a993f3e06) Thanks [@re-taro](https://github.com/re-taro)! - Add a per-story `viewport` parameter to override the capture viewport
+
+  Stories that do not fit into the globally configured viewport — dialogs and
+  other fixed-position overlays are the typical case — can now request their own
+  capture size:
+
+  ```typescript
+  export const TallDialog = {
+    parameters: {
+      screenshot: {
+        viewport: { height: 800 },
+      },
+    },
+  };
+  ```
+
+  Both dimensions are optional. An omitted dimension falls back to the plugin's
+  `viewport` option (or the Playwright context viewport when the plugin option is
+  not set), so a story can override only the height it needs while multiple runs
+  with different widths keep their own width.
+
+  The Playwright context is resized for the duration of the capture and restored
+  afterwards. The `@storycap-testrun/node` package is unchanged: with
+  `@storybook/test-runner`, the same result is achievable in userland via
+  `page.setViewportSize()` in a `preVisit` hook.
+
+  For adapter implementors: `ScreenshotAdapter.prepareCapture` gains a third
+  `viewport` argument and `takeScreenshot` options gain a `viewport` field,
+  carrying the per-story override.
+
+### Patch Changes
+
+- Updated dependencies [[`9c86255`](https://github.com/reg-viz/storycap-testrun/commit/9c86255fefe60422f8e1ee0e71a82b5a993f3e06)]:
+  - @storycap-testrun/internal@3.1.0
+
+## 3.0.1
+
+### Patch Changes
+
+- [#300](https://github.com/reg-viz/storycap-testrun/pull/300) [`42fafdb`](https://github.com/reg-viz/storycap-testrun/commit/42fafdb4e4942e6c7f5be07e7663af4818143a04) Thanks [@re-taro](https://github.com/re-taro)! - Capture content wider than the viewport in full-page screenshots
+
+  `fullPage: true` only stitched vertically, so content wider than the viewport — horizontally scrollable tables, lists, and similar layouts — was silently cropped to the viewport width. Full-page capture now tiles both axes: it scrolls horizontally as well, and stitches the chunks row by row, producing images sized to the content's full `scrollWidth` x `scrollHeight`. Vertical-only content produces byte-identical output to the previous behavior, and `deviceScaleFactor` other than 1 keeps working.
+
+- Updated dependencies []:
+  - @storycap-testrun/internal@3.0.1
+
 ## 3.0.0
 
 ### Major Changes

@@ -33,7 +33,7 @@
 **Developer experience:**
 
 - **Flexible file management**: Full control over screenshot paths and naming conventions
-- **Story-level configuration**: Per-story parameters for skip, delay, mask, and remove
+- **Story-level configuration**: Per-story parameters for skip, delay, mask, remove, and viewport
 - **Vitest plugin**: Seamless integration with Vitest's configuration and lifecycle
 
 **Performance optimizations:**
@@ -68,7 +68,7 @@ This makes it ideal for teams who need more than basic screenshots - providing t
 - **Browser environment constraints**
   - Limited to capabilities available in browser context.
 - **Full-page screenshots with `position: fixed/sticky`**
-  - When capturing full-page screenshots of content taller than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
+  - When capturing full-page screenshots of content larger than the viewport, elements with `position: fixed` or `position: sticky` may appear duplicated in the output image.
 - **Incompatible with `browser.ui`**
   - The Vitest UI keeps mutating the page, so the CDP metrics never settle and every capture ends in `MetricsTimeoutError`. `browser.ui` is already off whenever `headless: true` is set.
 - **Only Chromium is exercised**
@@ -157,7 +157,7 @@ afterEach(async (context) => {
 
 `page.viewport()` sizes the Vitest iframe while your test body runs, so it is what play functions and interaction assertions see. It does not decide the screenshot dimensions: immediately before capturing, storycap lays the story out at the plugin's `viewport` size, and the image is taken at that size.
 
-Set it when a play function depends on the viewport. Otherwise the plugin's `viewport` option is the only setting that affects the captured image.
+Set it when a play function depends on the viewport. Otherwise the captured image size is controlled by the plugin's `viewport` option, optionally overridden per story with the [`viewport` parameter](#viewport-1).
 
 **`afterEach` with `screenshot()`**
 
@@ -253,6 +253,9 @@ browser: {
 
 > [!NOTE]
 > `page.viewport()` from `vitest/browser` does not change this size. It sizes the Vitest iframe during the test body only.
+
+> [!TIP]
+> Individual stories can override these dimensions with the per-story [`viewport` parameter](#viewport-1).
 
 > [!WARNING]
 > When the Playwright context has no viewport of its own — `contextOptions: { viewport: null }` — the resize is one-way: Playwright cannot turn viewport emulation back off, so the page keeps this size for the rest of the run. Give the context a viewport as above to avoid it.
@@ -451,7 +454,7 @@ export const ViewportOnly = {
 ```
 
 > [!NOTE]
-> When `fullPage` is `true` and content exceeds the viewport height, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
+> When `fullPage` is `true` and content exceeds the viewport height or width, screenshots are captured by scrolling through the content and stitching the results. Elements with `position: fixed` or `position: sticky` may appear duplicated across tiles.
 
 ### `omitBackground`
 
@@ -466,6 +469,29 @@ Hides the default white background and allows capturing screenshots with transpa
 **Default:** `'device'`
 
 The screenshot resolution scale. `'css'` produces screenshots at CSS pixel dimensions, while `'device'` produces screenshots at device pixel dimensions (which may be larger on high-DPI displays). Can be set per-story to override the global default.
+
+### `viewport`
+
+**Type:** `{ width?: number; height?: number }`
+**Default:** None
+
+Overrides the viewport the screenshot is captured at, for this story only. Both dimensions are optional — an omitted dimension falls back to the plugin's `viewport` option (or the Playwright context viewport when the plugin option is not set). Useful for stories such as dialogs that do not fit into the globally configured viewport.
+
+```typescript
+export const TallDialog = {
+  parameters: {
+    screenshot: {
+      // Keep the configured width, capture at 800px height
+      viewport: { height: 800 },
+    },
+  },
+};
+```
+
+The Playwright context is resized to the resolved viewport for the duration of the capture and restored afterwards, so other stories are not affected.
+
+> [!WARNING]
+> The same one-way caveat as the plugin's `viewport` option applies: when the Playwright context has no viewport of its own (`contextOptions: { viewport: null }`), enabling viewport emulation cannot be undone and the page keeps the overridden size for the rest of the run. Give the context a viewport to avoid it.
 
 ## CHANGELOG
 
