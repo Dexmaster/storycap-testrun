@@ -6,7 +6,7 @@ export const TallContent = () => (
       style={{
         position: 'sticky',
         height: '72px',
-        width: '200vw',
+        width: '100%',
         top: 0,
         background: '#faa',
       }}
@@ -34,28 +34,6 @@ export const TallContent = () => (
       }}
     >
       <h1 style={{ color: 'white', fontSize: '48px' }}>Section 2</h1>
-    </section>
-    <section
-      style={{
-        height: '100vh',
-        background: 'linear-gradient(135deg, #fbe393 0%, #64f557 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <h1 style={{ color: 'white', fontSize: '48px' }}>Section 3</h1>
-    </section>
-    <section
-      style={{
-        height: '100vh',
-        background: 'linear-gradient(135deg, #93fbd8 0%, #667eea 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <h1 style={{ color: 'white', fontSize: '48px' }}>Section 4</h1>
     </section>
     <div
       style={{
